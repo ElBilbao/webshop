@@ -67,20 +67,20 @@
         e.preventDefault();
 
         let username = txtUsername.value.trim();
-        let password = txtPassword.value.trim();
+        let password = txtPassword.value;
         let email = txtEmail.value.trim();
 
         // Comment to check out how server validation is working too
         if (username === "") {
-          alert("Specify a username");
+          alert("Input a valid username!");
           return;
         }
         if (password === "" || password.length < 8) {
-          alert("Input valid price: Min length is 8 characters");
+          alert("Input valid price: Min length is 8 characters.");
           return;
         }
-        if (email === "") {
-          alert("Specify an email");
+        if (email === "" || email.indexOf("@") == -1) {
+          alert("Input a valid email!");
           return;
         }
 

@@ -47,28 +47,61 @@ router.get("/all", (req, res) => {
 
 router.get("/", async (req, res) => {
   let allusers = await usersModel.find();
-  res.send(allusers);
+
+  let modifiedUsers = [];
+
+  allusers.forEach((u) => {
+    modifiedUsers.push({
+      _id: u._id,
+      username: u.username,
+      email: u.email,
+      password: u.password,
+      avatar: {
+        contentType: u.avatar.contentType,
+        data: u.avatar.data.toString("base64"),
+      },
+    });
+  });
+
+  res.send(modifiedUsers);
 });
 
 router.get("/:id", async (req, res) => {
-  let usersId = req.params.id;
-  let users = await usersModel.findOne({ _id: usersId });
-  if (users) res.send(users);
-  else res.status(404).end(`User with id ${usersId} does not exist`);
+  let userId = req.params.id;
+  let user = await usersModel.findOne({ _id: userId });
+  if (user)
+    res.send({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      avatar: {
+        contentType: user.avatar.contentType,
+        data: user.avatar.data.toString("base64"),
+      },
+    });
+  else res.status(404).end(`User with id ${userId} does not exist`);
 });
 
-router.put("/:id", (req, res) => {
-  let usersId = req.params.id;
-  let { username, password } = req.body;
-  usersModel
-    .findOneAndUpdate(
-      { _id: usersId }, // selection criteria
-      {
-        username: username,
-        password: password,
-      }
-    )
-    .then((users) => res.send(users))
+router.put("/:id", upload.single("avatar"), async (req, res) => {
+  let userId = req.params.id;
+  let user = await usersModel.findOne({ _id: userId });
+  user.username = req.body.username;
+  user.email = req.body.email;
+  user.password = req.body.password;
+
+  if (req.file) {
+    console.log("User modified the avatar");
+    avatarObject = {
+      data: fs.readFileSync(path.join("./uploads/" + req.file.filename)),
+      contentType: "image/jpg",
+    };
+    user.avatar = avatarObject;
+  }
+
+  user
+    .save()
+    .then((user) => res.send(user))
     .catch((err) => {
       console.log(error);
       res.status(503).end(`Could not update user ${error}`);

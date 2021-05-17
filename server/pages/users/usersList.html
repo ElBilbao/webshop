@@ -63,6 +63,7 @@
           let cellPassword = row.insertCell();
           let cellEmail = row.insertCell();
           let cellAvatar = row.insertCell();
+
           let cellEdit = row.insertCell();
           let cellDelete = row.insertCell();
 
@@ -76,7 +77,12 @@
           cellUsername.innerText = m.username;
           cellPassword.innerText = m.password;
           cellEmail.innerText = m.email;
-          cellAvatar.innerText = m.avatar;
+          let avatarImage = document.createElement("img");
+          let stringValue = "data:image/jpg;base64," + (m.avatar.data);
+          avatarImage.setAttribute("height", 200);
+          avatarImage.setAttribute("width", 200);
+          avatarImage.setAttribute("src", stringValue);
+          cellAvatar.appendChild(avatarImage);
 
           btnEdit = document.createElement("button");
           btnEdit.appendChild(document.createTextNode("Edit"));
