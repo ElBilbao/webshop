@@ -24,10 +24,17 @@ router.get("/create", (req, res) => {
 router.post("/create", upload.single("avatar"), (req, res) => {
   let { username, password, email } = req.body; // JS object deconstruction
 
-  avatarObject = {
-    data: fs.readFileSync(path.join("./uploads/" + req.file.filename)),
-    contentType: "image/jpg",
-  };
+  if (req.file) {
+    avatarObject = {
+      data: fs.readFileSync(path.join("./uploads/" + req.file.filename)),
+      contentType: "image/jpg",
+    };
+  } else {
+    avatarObject = {
+      data: fs.readFileSync(path.join("./uploads/" + "avatar-default")),
+      contentType: "image/jpg",
+    };
+  }
 
   let users = new usersModel({
     username: username,
