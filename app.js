@@ -129,9 +129,25 @@ app.post("/logout", requireLogin, function (req, res) {
 const portNumber = 3000;
 var server = app.listen(portNumber, function () {
   console.log("SERVER :: Ready and running at PORT:" + portNumber + ".");
+  adminAccount();
 });
 
 // ============== HELPER FUNCTIONS
+
+async function adminAccount() {
+  let user = await usersModel.findOne({ username: "admin" });
+  if (!user) {
+    user = new usersModel({
+      username: "admin",
+      password: "admin123",
+      email: "admin@admin.com",
+    });
+    user.save((err) => {
+      if (err) res.status(503).send(`Error: ${err}`);
+      else console.log("SERVER :: Admin account created");
+    });
+  }
+}
 function generateRandomString(length) {
   var result = [];
   var characters =
