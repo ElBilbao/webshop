@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const ejs = require("ejs");
+const fs = require("fs");
+const path = require("path");
 const bcrypt = require("bcryptjs");
 
 const app = express();
@@ -40,13 +42,12 @@ app.use("/users", usersRoutes);
 // });
 
 // ============= LOGIN
-const secret = "5tr0n6P@55W0rD";
+const secret = "MI*}FC:Q'QBO+e0w#X|*";
 
 function generateToken(user) {
   let payload = {
     username: user.username,
     id: user.id,
-    role: user.role,
   };
   let oneDay = 60 * 60 * 24;
   return (token = jwt.sign(payload, secret, { expiresIn: oneDay }));
@@ -69,14 +70,18 @@ function requireLogin(req, res, next) {
   } catch (e) {
     //if an error occured return request unauthorized error, or redirect to login
     // return res.status(401).send():
-    res.redirect(403, "/login");
+    return res.redirect(403, "/login");
   }
 }
 
-app.get("/", requireLogin, function (req, res) {
+app.get("/", requireLogin, async function (req, res) {
+  let user = await usersModel.findOne({ username: req.user.username });
+  let stringValue =
+    "data:image/jpg;base64," + user.avatar.data.toString("base64");
+
   ejs.renderFile(
     "./server/pages/main/main.html",
-    { user: req.user },
+    { user: req.user, avatar: stringValue },
     null,
     function (err, str) {
       if (err) {
@@ -88,8 +93,13 @@ app.get("/", requireLogin, function (req, res) {
   );
 });
 
+app.get("/register", function (req, res) {
+  if (req.cookies.authorization) return res.redirect("/");
+  res.sendFile("register.html", { root: "server/pages/main" });
+});
+
 app.get("/login", function (req, res) {
-  if (req.cookies.authorization) res.redirect("/");
+  if (req.cookies.authorization) return res.redirect("/");
   res.sendFile("login.html", { root: "server/pages/main" });
 });
 
@@ -119,6 +129,25 @@ app.post("/login", async function (req, res) {
   }
 });
 
+app.get("/:id/settings", (req, res) => {
+  let userId = req.params.id;
+
+  // load the users as string, leaver some markers and replace the markers with the info you need
+  // create the page from scratch dynamically
+
+  ejs.renderFile(
+    "./server/pages/main/settings.html",
+    { userId: userId },
+    null,
+    function (err, str) {
+      if (err) res.status(503).send(`error when rendering the view: ${err}`);
+      else {
+        res.end(str);
+      }
+    }
+  );
+});
+
 app.post("/logout", requireLogin, function (req, res) {
   console.log(`LOGIN :: Logging out ${req.username}`);
   res.clearCookie("authorization");
@@ -141,6 +170,10 @@ async function adminAccount() {
       username: "admin",
       password: "admin123",
       email: "admin@admin.com",
+      avatar: {
+        data: fs.readFileSync(path.join("./uploads/" + "avatar-default")),
+        contentType: "image/jpg",
+      },
     });
     user.save((err) => {
       if (err) res.status(503).send(`Error: ${err}`);

@@ -104,6 +104,11 @@ router.put("/:id", upload.single("avatar"), async (req, res) => {
       contentType: "image/jpg",
     };
     user.avatar = avatarObject;
+  } else {
+    avatarObject = {
+      data: fs.readFileSync(path.join("./uploads/" + "avatar-default")),
+      contentType: "image/jpg",
+    };
   }
 
   user
@@ -124,6 +129,7 @@ router.delete("/:id", (req, res) => {
       console.log(error);
       res.status(503).end(`Could not delete user ${error}`);
     });
+  res.clearCookie("authorization");
 });
 
 router.get("/:id/edit", (req, res) => {

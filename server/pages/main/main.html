@@ -20,16 +20,50 @@
     <title>WebShop</title>
   </head>
   <body>
-    <h1>Welcome</h1>
-    Welcome <%= user.username %>
-    <h2>Edit your details</h2>
-    > To be developed.
-    <h2>Log out</h2>
-    <input type="button" value="logout" id="logout" />
+    <div style="text-align: right; border-bottom: 3px solid black">
+      <img
+        src="<%= avatar %>"
+        style="width: 50px; height: 50px; margin-right: 10px"
+      />
+      <%= user.username %>
+      <input
+        type="button"
+        value="Settings"
+        id="settings"
+        class="btn btn-secondary"
+        style="margin-left: 10px"
+      />
+
+      <input
+        type="button"
+        value="Logout"
+        id="logout"
+        class="btn btn-danger"
+        style="margin-left: 10px"
+      />
+    </div>
+
+    <div>
+      <h1 style="text-align: center; font-weight: bold">List of products</h1>
+      <table
+        class="table table-hover"
+        id="productsTable"
+        style="margin-left: auto; margin-right: auto"
+      >
+        <tr id="rowHeader">
+          <th style="padding: 10px; text-align: center">Name</th>
+          <th style="padding: 10px; text-align: center">Price</th>
+          <th style="padding: 10px; text-align: center">Brand</th>
+          <th style="padding: 10px; text-align: center">Add</th>
+        </tr>
+      </table>
+    </div>
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
       const btnLogout = document.getElementById("logout");
+      const btnSettings = document.getElementById("settings");
+
       btnLogout.addEventListener("click", (e) => {
         axios
           .post("http://127.0.0.1:3000/logout") // No params, the cookie handles it all
@@ -43,6 +77,51 @@
             alert(`Error: ${error.response.data}`);
           });
       });
+
+      btnSettings.addEventListener("click", (e) => {
+        window.location.href = `http://127.0.0.1:3000/<%= user.id %>/settings`;
+      });
+    </script>
+    <script>
+      axios
+        .get("http://127.0.0.1:3000/products")
+        .then((response) => {
+          loadProducts(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+          alert(`Error: ${error}`);
+        });
+
+      function loadProducts(products) {
+        const table = document.getElementById("productsTable");
+        products.forEach((m) => {
+          let row = table.insertRow();
+          let cellName = row.insertCell();
+          let cellPrice = row.insertCell();
+          let cellBrand = row.insertCell();
+          let cellAdd = row.insertCell();
+
+          row.style.textAlign = "center";
+
+          cellName.style.padding = "10px";
+          cellPrice.style.padding = "10px";
+          cellBrand.style.padding = "10px";
+          cellAdd.style.padding = "10px";
+
+          cellName.innerText = m.name;
+          cellPrice.innerText = m.price;
+          cellBrand.innerText = m.brand;
+
+          btnAdd = document.createElement("button");
+          btnAdd.appendChild(document.createTextNode("Add"));
+          btnAdd.addEventListener("click", () => {
+            // TODO ADD TO CART
+          });
+          btnAdd.className = "btn btn-success";
+          cellAdd.appendChild(btnAdd);
+        });
+      }
     </script>
   </body>
 </html>
