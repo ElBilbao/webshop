@@ -15,13 +15,16 @@ app.use(cookieParser());
 
 let productsRoutes = require("./server/routes/products.js");
 let usersRoutes = require("./server/routes/users.js");
+let cartRoutes = require("./server/routes/cart.js");
 
 let database = require("./server/database");
 
 let usersModel = require("./server/models/users");
+let cartModel = require("./server/models/cart");
 
 app.use("/products", productsRoutes);
 app.use("/users", usersRoutes);
+app.use("/cart", cartRoutes);
 
 // app.route("/").get((req, res) => {
 //   res.send("WebShop v1");
@@ -159,9 +162,21 @@ const portNumber = 3000;
 var server = app.listen(portNumber, function () {
   console.log("SERVER :: Ready and running at PORT:" + portNumber + ".");
   adminAccount();
+  // cartExample();
 });
 
 // ============== HELPER FUNCTIONS
+
+async function cartExample() {
+  cart = new cartModel({
+    userid: "123",
+    cart: { init: 12, aja: 2 },
+  });
+  cart.save((err) => {
+    if (err) res.status(503).send(`Error: ${err}`);
+    else console.log("SERVER :: Cart created");
+  });
+}
 
 async function adminAccount() {
   let user = await usersModel.findOne({ username: "admin" });
@@ -177,10 +192,21 @@ async function adminAccount() {
     });
     user.save((err) => {
       if (err) res.status(503).send(`Error: ${err}`);
-      else console.log("SERVER :: Admin account created");
+      else {
+        let cart = new cartModel({
+          userid: user._id,
+          cart: {},
+        });
+
+        cart.save((err) => {
+          if (err) res.status(503).send(`Error cart for admin: ${err}`);
+        });
+        console.log("SERVER :: Admin account created");
+      }
     });
   }
 }
+
 function generateRandomString(length) {
   var result = [];
   var characters =

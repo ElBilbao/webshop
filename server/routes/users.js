@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 let usersModel = require("../models/users");
+let cartModel = require("../models/cart");
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -44,7 +45,18 @@ router.post("/create", upload.single("avatar"), (req, res) => {
   });
   users.save((err) => {
     if (err) res.status(503).send(`Error: ${err}`);
-    else res.send(users);
+    else {
+      let cart = new cartModel({
+        userid: users._id,
+        cart: {},
+      });
+
+      cart.save((err) => {
+        if (err) res.status(503).send(`Error cart for new user: ${err}`);
+      });
+
+      res.send(users);
+    }
   });
 });
 

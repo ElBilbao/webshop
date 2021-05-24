@@ -30,6 +30,7 @@
         <input type="password" id="txtPassword" /><br />
 
         <input type="submit" id="submit" value="Login" />
+        <input type="submit" id="register" value="Register" />
       </form>
     </div>
 
@@ -71,6 +72,12 @@
 
             alert(`Error: ${error.response.data}`);
           });
+      });
+
+      const btwRegister = document.getElementById("register");
+      btwRegister.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = "http://127.0.0.1:3000/register";
       });
     </script>
   </body>

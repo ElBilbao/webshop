@@ -101,6 +101,7 @@
         window.location.href = `http://127.0.0.1:3000/<%= user.id %>/settings`;
       });
     </script>
+
     <script>
       axios
         .get("http://127.0.0.1:3000/products")
@@ -132,6 +133,8 @@
           cellPrice.innerText = m.price;
           cellBrand.innerText = m.brand;
 
+          cellPrice.id = m.name + "-price";
+
           btnAdd = document.createElement("button");
           btnAdd.appendChild(document.createTextNode("Add"));
 
@@ -149,6 +152,8 @@
               );
 
               qtyCell.innerText = parseInt(qtyCell.innerText) + 1;
+
+              cart.set(m.name, parseInt(qtyCell.innerText));
             } else {
               let row = table.insertRow();
               let cellName = row.insertCell();
@@ -178,20 +183,99 @@
 
               btnDelete.className = "btn btn-danger";
               cellDelete.appendChild(btnDelete);
+
+              cart.set(m.name, 1);
             }
 
             total.innerText = parseInt(total.innerText) + price;
+            updateCart();
           });
 
           btnAdd.className = "btn btn-success";
           cellAdd.appendChild(btnAdd);
         });
       }
+
+      function updateCart() {
+        axios
+          .post(`http://127.0.0.1:3000/cart/<%= user.id %>`, {
+            cart: Object.fromEntries(cart),
+          })
+          .then((response) => {
+            console.log(response);
+            alert(`Product added to cart!`);
+          })
+          .catch((error) => {
+            console.log(error.response.data);
+            alert(`Problem when updating user ${error.response.data}`);
+          });
+      }
     </script>
 
     <script>
+      var cart = new Map();
       const table = document.getElementById("cartTable");
-      let cartItems = new Map();
+      axios
+        .get(`http://127.0.0.1:3000/cart/<%= user.id %>`)
+        .then((response) => {
+          console.log(response);
+
+          loadCart(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+          alert(`Problem when getting cart: ${error}`);
+        });
+
+      function loadCart(user_cart) {
+        cart = new Map(Object.entries(user_cart.cart));
+        let totalPrice = 0;
+
+        cart.forEach((value, key) => {
+          let itemPrice = document.getElementById(key + "-price");
+          totalPrice += parseInt(itemPrice.innerText) * value;
+
+          let m = {
+            name: key,
+            price: itemPrice.innerText,
+          };
+
+          const table = document.getElementById("cartTable");
+          let price = m.price;
+          const total = document.getElementById("total");
+
+          let row = table.insertRow();
+          let cellName = row.insertCell();
+          let cellPrice = row.insertCell();
+          let cellQuantity = row.insertCell();
+          let cellDelete = row.insertCell();
+
+          row.style.textAlign = "center";
+          row.id = "cart-" + m.name;
+
+          cellName.style.padding = "10px";
+          cellPrice.style.padding = "10px";
+          cellQuantity.style.padding = "10px";
+          cellDelete.style.padding = "10px";
+
+          cellName.innerText = m.name;
+          cellPrice.innerText = m.price;
+          cellQuantity.innerText = value;
+
+          cellPrice.id = "cart-" + m.name + "-price";
+          cellQuantity.id = "cart-" + m.name + "-qty";
+
+          btnDelete = document.createElement("button");
+          btnDelete.appendChild(document.createTextNode("Delete"));
+
+          btnDelete.addEventListener("click", () => {});
+
+          btnDelete.className = "btn btn-danger";
+          cellDelete.appendChild(btnDelete);
+
+          total.innerText = totalPrice;
+        });
+      }
     </script>
   </body>
 </html>
