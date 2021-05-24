@@ -4,6 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <link
       rel="stylesheet"
@@ -39,27 +40,45 @@
         value="Logout"
         id="logout"
         class="btn btn-danger"
-        style="margin-left: 10px"
+        style="margin-left: 10px; margin-right: 10px"
       />
     </div>
 
-    <div>
-      <h1 style="text-align: center; font-weight: bold">List of products</h1>
-      <table
-        class="table table-hover"
-        id="productsTable"
-        style="margin-left: auto; margin-right: auto"
-      >
-        <tr id="rowHeader">
-          <th style="padding: 10px; text-align: center">Name</th>
-          <th style="padding: 10px; text-align: center">Price</th>
-          <th style="padding: 10px; text-align: center">Brand</th>
-          <th style="padding: 10px; text-align: center">Add</th>
-        </tr>
-      </table>
+    <div class="row">
+      <div class="col-8">
+        <h1 style="text-align: center; font-weight: bold">List of products</h1>
+        <table
+          class="table table-hover"
+          id="productsTable"
+          style="margin-left: auto; margin-right: auto"
+        >
+          <tr id="rowHeader">
+            <th style="padding: 10px; text-align: center">Name</th>
+            <th style="padding: 10px; text-align: center">Price</th>
+            <th style="padding: 10px; text-align: center">Brand</th>
+            <th style="padding: 10px; text-align: center">Add</th>
+          </tr>
+        </table>
+      </div>
+
+      <div class="col-4" style="border-left: 3px black solid">
+        <h2 style="text-align: center; font-weight: bold">Cart</h2>
+        <table id="cartTable" style="margin-left: auto; margin-right: auto">
+          <tr id="rowHeader">
+            <th style="padding: 10px; text-align: center">Name</th>
+            <th style="padding: 10px; text-align: center">Price</th>
+            <th style="padding: 10px; text-align: center">Quantity</th>
+            <th style="padding: 10px; text-align: center">Delete</th>
+          </tr>
+        </table>
+
+        <div class="row" style="padding: 10px; justify-content: center">
+          <h3>Total = $</h3>
+          <h3 id="total">0</h3>
+        </div>
+      </div>
     </div>
 
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
       const btnLogout = document.getElementById("logout");
       const btnSettings = document.getElementById("settings");
@@ -115,13 +134,64 @@
 
           btnAdd = document.createElement("button");
           btnAdd.appendChild(document.createTextNode("Add"));
+
+          // ======== ADD TO CART
           btnAdd.addEventListener("click", () => {
-            // TODO ADD TO CART
+            let item = document.getElementById("cart-" + m.name);
+            const table = document.getElementById("cartTable");
+            let price = m.price;
+            const total = document.getElementById("total");
+
+            if (item) {
+              let qty = parseInt(item);
+              const qtyCell = document.getElementById(
+                "cart-" + m.name + "-qty"
+              );
+
+              qtyCell.innerText = parseInt(qtyCell.innerText) + 1;
+            } else {
+              let row = table.insertRow();
+              let cellName = row.insertCell();
+              let cellPrice = row.insertCell();
+              let cellQuantity = row.insertCell();
+              let cellDelete = row.insertCell();
+
+              row.style.textAlign = "center";
+              row.id = "cart-" + m.name;
+
+              cellName.style.padding = "10px";
+              cellPrice.style.padding = "10px";
+              cellQuantity.style.padding = "10px";
+              cellDelete.style.padding = "10px";
+
+              cellName.innerText = m.name;
+              cellPrice.innerText = m.price;
+              cellQuantity.innerText = 1;
+
+              cellPrice.id = "cart-" + m.name + "-price";
+              cellQuantity.id = "cart-" + m.name + "-qty";
+
+              btnDelete = document.createElement("button");
+              btnDelete.appendChild(document.createTextNode("Delete"));
+
+              btnDelete.addEventListener("click", () => {});
+
+              btnDelete.className = "btn btn-danger";
+              cellDelete.appendChild(btnDelete);
+            }
+
+            total.innerText = parseInt(total.innerText) + price;
           });
+
           btnAdd.className = "btn btn-success";
           cellAdd.appendChild(btnAdd);
         });
       }
+    </script>
+
+    <script>
+      const table = document.getElementById("cartTable");
+      let cartItems = new Map();
     </script>
   </body>
 </html>
