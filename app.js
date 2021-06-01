@@ -105,6 +105,8 @@ app.get("/register", function (req, res) {
 
 app.get("/login", function (req, res) {
   if (req.cookies.authorization) return res.redirect("/");
+  if (req.headers["host"].includes("localhost"))
+    return res.redirect("http://127.0.0.1:3000/login");
   res.sendFile("login.html", { root: "server/pages/main" });
 });
 
@@ -158,6 +160,22 @@ app.post("/logout", requireLogin, function (req, res) {
   console.log(`LOGIN :: Logging out ${req.username}`);
   res.clearCookie("authorization");
   res.redirect("/login");
+});
+
+app.post("/completePurchase", async (req, res) => {
+  let user_id = req.body.userid;
+  let cart = await cartModel.findOne({ userid: user_id });
+  cart.cart = new Map();
+  cart
+    .save()
+    .then(() => {
+      console.log("PURCHASE :: " + user_id + " purchased his cart.");
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      console.log(error);
+      res.status(503).end(`Could not purchase cart ${error}`);
+    });
 });
 
 // ============= RUN SERVER

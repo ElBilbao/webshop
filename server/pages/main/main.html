@@ -144,7 +144,9 @@
             >
               Close
             </button>
-            <button type="button" class="btn btn-warning">Purchase</button>
+            <button type="button" class="btn btn-warning" id="completePurchase">
+              Purchase
+            </button>
           </div>
         </div>
       </div>
@@ -431,6 +433,26 @@
 
         var cartTotal = document.getElementById("purchaseTotal");
         cartTotal.innerText = document.getElementById("total").innerText;
+      });
+
+      let completeBtn = document.getElementById("completePurchase");
+      completeBtn.addEventListener("click", () => {
+        if (cart.size < 1) {
+          alert("Cart is empty!");
+          return;
+        }
+        axios
+          .post("http://127.0.0.1:3000/completePurchase", {
+            userid: "<%= user.id %>",
+          })
+          .then((response) => {
+            alert(`Purchase successful!`);
+            window.location.replace("http://127.0.0.1:3000/");
+          })
+          .catch((error) => {
+            console.log(error.response.data);
+            alert(`Error: ${error.response.data}`);
+          });
       });
     </script>
 
