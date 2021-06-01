@@ -3,6 +3,7 @@ var router = express.Router();
 const ejs = require("ejs");
 
 let productsModel = require("../models/products");
+let cartModel = require("../models/cart");
 
 router.get("/create", (req, res) => {
   res.sendFile("insert.html", { root: "./server/pages/products/" });
@@ -57,8 +58,26 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   let productsId = req.params.id;
+
+  let product = await productsModel.findOne({ _id: productsId });
+  let product_name = product.name;
+
+  let carts = await cartModel.find();
+
+  for (let i = 0; i < carts.length; i++) {
+    let cart_content = carts[i].cart;
+    cart_content.delete(product_name);
+    carts[i]
+      .save()
+      .then()
+      .catch((err) => {
+        console.log(err);
+        res.status(503).end(`Could not update carts ${err}`);
+      });
+  }
+
   productsModel
     .findOneAndDelete({ _id: productsId })
     .then((products) => res.send(products))

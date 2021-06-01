@@ -136,7 +136,18 @@ router.delete("/:id", (req, res) => {
   let usersId = req.params.id;
   usersModel
     .findOneAndDelete({ _id: usersId })
-    .then((users) => res.send(users))
+    .then((users) => {
+      cartModel
+        .findOneAndDelete({ userid: usersId })
+        .then(() =>
+          console.log("DATABASE :: Cart deleted as user was deleted.")
+        )
+        .catch((err) => {
+          console.log(error);
+          res.status(503).end(`Could not delete cart of user deleted ${error}`);
+        });
+      res.send(users);
+    })
     .catch((err) => {
       console.log(error);
       res.status(503).end(`Could not delete user ${error}`);

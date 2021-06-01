@@ -73,6 +73,8 @@ function requireLogin(req, res, next) {
   } catch (e) {
     //if an error occured return request unauthorized error, or redirect to login
     // return res.status(401).send():
+    console.log(e);
+    res.clearCookie("authorization");
     return res.redirect(403, "/login");
   }
 }
@@ -124,6 +126,7 @@ app.post("/login", async function (req, res) {
           secure: true,
           httpOnly: true,
         });
+        console.log(accessToken);
         res.status(200).json(accessToken);
       }
     });
@@ -160,7 +163,7 @@ app.post("/logout", requireLogin, function (req, res) {
 // ============= RUN SERVER
 const portNumber = 3000;
 var server = app.listen(portNumber, function () {
-  console.log("SERVER :: Ready and running at PORT:" + portNumber + ".");
+  console.log("SERVER :: Ready and running at 127.0.0.1:" + portNumber + ".");
   adminAccount();
   // cartExample();
 });
