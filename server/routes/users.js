@@ -137,6 +137,7 @@ router.delete("/:id", (req, res) => {
   usersModel
     .findOneAndDelete({ _id: usersId })
     .then((users) => {
+      res.clearCookie("authorization");
       cartModel
         .findOneAndDelete({ userid: usersId })
         .then(() =>
@@ -152,7 +153,6 @@ router.delete("/:id", (req, res) => {
       console.log(error);
       res.status(503).end(`Could not delete user ${error}`);
     });
-  res.clearCookie("authorization");
 });
 
 router.get("/:id/edit", (req, res) => {

@@ -26,24 +26,6 @@ app.use("/products", productsRoutes);
 app.use("/users", usersRoutes);
 app.use("/cart", cartRoutes);
 
-// app.route("/").get((req, res) => {
-//   res.send("WebShop v1");
-//   // let routerList = [];
-//   // productsRoutes.stack
-//   //   .filter((r) => r.route)
-//   //   .map((r) =>
-//   //     routerList.push(r.route.path + " " + JSON.stringify(r.route.methods))
-//   //   );
-
-//   // app._router.stack.forEach(function (r) {
-//   //   if (r.route && r.route.path) {
-//   //     console.log(r.route.path);
-//   //     routerList.push(r.route.path);
-//   //   }
-//   // });
-//   // let response = routerList.map((ele) => ele + "\n");
-// });
-
 // ============= LOGIN
 const secret = "MI*}FC:Q'QBO+e0w#X|*";
 
@@ -80,9 +62,13 @@ function requireLogin(req, res, next) {
 }
 
 app.get("/", requireLogin, async function (req, res) {
-  let user = await usersModel.findOne({ username: req.user.username });
-  let stringValue =
-    "data:image/jpg;base64," + user.avatar.data.toString("base64");
+  let user = await usersModel.findOne({ _id: req.user.id });
+  let stringValue;
+
+  if (user) {
+    stringValue =
+      "data:image/jpg;base64," + user.avatar.data.toString("base64");
+  }
 
   ejs.renderFile(
     "./server/pages/main/main.html",
