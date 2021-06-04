@@ -126,8 +126,16 @@ app.post("/login", async function (req, res) {
 app.get("/:id/settings", (req, res) => {
   let userId = req.params.id;
 
-  // load the users as string, leaver some markers and replace the markers with the info you need
-  // create the page from scratch dynamically
+  payload = jwt.verify(req.cookies.authorization, secret);
+
+  if (userId != payload.id && payload.username != "admin") {
+    res
+      .status(401)
+      .send(
+        "<h1>ERROR 401: ACCESS DENIED</h1> <h3>You may only edit your own profile.</h3> "
+      );
+    return;
+  }
 
   ejs.renderFile(
     "./server/pages/main/settings.html",

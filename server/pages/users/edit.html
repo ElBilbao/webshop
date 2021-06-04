@@ -81,7 +81,7 @@
           alert("Input valid price: Min length is 8 characters");
           return;
         }
-        if (email === "" || email.indexOf("@") == -1) {
+        if (email === "" || !validateEmail(email)) {
           alert("Input a valid email!");
           return;
         }
@@ -126,6 +126,17 @@
             btnSubmit.disabled = true;
             alert(`Problem when loading data for user ${error.response.data}`);
           });
+      }
+
+      function validateEmail(inputText) {
+        if (
+          inputText.match(/^[^\s@]+@[^\s@]+$/) &&
+          inputText.match(/\S+@\S+\.\S+/)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
       }
     </script>
   </body>
