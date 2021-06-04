@@ -292,7 +292,7 @@
               cart.set(m.name, 1);
             }
 
-            total.innerText = parseInt(total.innerText) + price;
+            total.innerText = (parseFloat(total.innerText) + price).toFixed(2);
             updateCart();
           });
 
@@ -339,7 +339,7 @@
         cart.forEach((value, key) => {
           let itemPrice = document.getElementById(key + "-price");
           if (itemPrice) {
-            totalPrice += parseInt(itemPrice.innerText) * value;
+            totalPrice += parseFloat(itemPrice.innerText) * value;
 
             let m = {
               name: key,
@@ -408,7 +408,7 @@
             btnDelete.className = "btn btn-danger";
             cellDelete.appendChild(btnDelete);
 
-            total.innerText = totalPrice;
+            total.innerText = totalPrice.toFixed(2);
           }
         });
       }
