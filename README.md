@@ -9,4 +9,5 @@ An online webshop that includes a CRUD API for products, users and cart manageme
 _Automatically created when the server boots, if it is not created already._
 <br />
 **Username**: admin
+<br />
 **Password**: admin123
