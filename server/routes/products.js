@@ -1,11 +1,36 @@
 var express = require("express");
 var router = express.Router();
 const ejs = require("ejs");
+const jwt = require("jsonwebtoken");
 
 let productsModel = require("../models/products");
 let cartModel = require("../models/cart");
 
-router.get("/create", (req, res) => {
+const secret = "MI*}FC:Q'QBO+e0w#X|*";
+
+function adminOnly(req, res, next) {
+  let accessToken = req.cookies.authorization;
+
+  if (!accessToken) {
+    console.log("LOGIN :: Unauthorized user, redirecting to login");
+    return res.redirect("/login");
+  }
+
+  try {
+    payload = jwt.verify(accessToken, secret);
+    if (payload.username != "admin") {
+      return res.redirect(401, "/login");
+    }
+    console.log("LOGIN :: Logged user accessing the site " + payload.username);
+    req.user = payload;
+    next();
+  } catch (e) {
+    console.log(e);
+    return res.redirect(403, "/login");
+  }
+}
+
+router.get("/create", adminOnly, (req, res) => {
   res.sendFile("insert.html", { root: "./server/pages/products/" });
 });
 
@@ -23,7 +48,7 @@ router.post("/create", (req, res) => {
   });
 });
 
-router.get("/all", (req, res) => {
+router.get("/all", adminOnly, (req, res) => {
   res.sendFile("productsList.html", { root: "./server/pages/products/" });
 });
 
@@ -89,9 +114,6 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/:id/edit", (req, res) => {
   let productId = req.params.id;
-
-  // load the products as string, leaver some markers and replace the markers with the info you need
-  // create the page from scratch dynamically
 
   ejs.renderFile(
     "./server/pages/products/edit.html",

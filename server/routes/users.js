@@ -3,9 +3,34 @@ var router = express.Router();
 const ejs = require("ejs");
 const fs = require("fs");
 const path = require("path");
+const jwt = require("jsonwebtoken");
 
 let usersModel = require("../models/users");
 let cartModel = require("../models/cart");
+
+const secret = "MI*}FC:Q'QBO+e0w#X|*";
+
+function adminOnly(req, res, next) {
+  let accessToken = req.cookies.authorization;
+
+  if (!accessToken) {
+    console.log("LOGIN :: Unauthorized user, redirecting to login");
+    return res.redirect("/login");
+  }
+
+  try {
+    payload = jwt.verify(accessToken, secret);
+    if (payload.username != "admin") {
+      return res.redirect(401, "/login");
+    }
+    console.log("LOGIN :: Logged user accessing the site " + payload.username);
+    req.user = payload;
+    next();
+  } catch (e) {
+    console.log(e);
+    return res.redirect(403, "/login");
+  }
+}
 
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -18,7 +43,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get("/create", (req, res) => {
+router.get("/create", adminOnly, (req, res) => {
   res.sendFile("insert.html", { root: "./server/pages/users/" });
 });
 
@@ -60,7 +85,7 @@ router.post("/create", upload.single("avatar"), (req, res) => {
   });
 });
 
-router.get("/all", (req, res) => {
+router.get("/all", adminOnly, (req, res) => {
   res.sendFile("usersList.html", { root: "./server/pages/users/" });
 });
 
